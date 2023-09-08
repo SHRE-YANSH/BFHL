@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require('body-parser');
+const serverless = require('serverless-http');
 const app = express();
 
 const PORT = 3000
@@ -84,3 +85,5 @@ app.post('/bfhl', (req, res) => {
 app.listen(PORT,() => {
   console.log(`connected at port ${PORT}`);
 });
+
+module.exports.handler = serverless(app)
