@@ -12,11 +12,24 @@ app.get('/bfhl', (req, res)=>{
 
 function getHighestAlphabet(alphabets) {
     if (alphabets.length === 0) {
-      return null;
+      return [];
     }
-    return alphabets.reduce((highest, current) => {
-      return current > highest ? current : highest;
-    });
+  
+    const highestAlphabets = [];
+    let highest = alphabets[0].toLowerCase();
+  
+    for (const alphabet of alphabets) {
+      const current = alphabet.toLowerCase();
+      if (current === highest) {
+        highestAlphabets.push(alphabet);
+      } else if (current > highest) {
+        highestAlphabets.length = 0;
+        highest = current;
+        highestAlphabets.push(alphabet);
+      }
+    }
+  
+    return highestAlphabets;
   }
 
   function extractNumbers(inputString) {
@@ -25,7 +38,6 @@ function getHighestAlphabet(alphabets) {
     for (let i = 0; i < inputString.length; i++) {
       const char = inputString[i];
       if (/[0-9]/.test(char)) {
-        // If it's a number, add it to the numbers list
         numbers.push(char);
       }
     }
@@ -47,9 +59,12 @@ function getHighestAlphabet(alphabets) {
   }
 app.post('/bfhl', (req, res) => {
     const data = req.body
+    if (!data || !Array.isArray(data["data"])) {
+        return res.status(400).json({ is_success: false, error: 'Invalid Input.' });
+    }
+    try{
     const numbers = extractNumbers(data["data"])
     const alpha = extractAlphabets(data["data"])
-    // console.log(data["data"])
     const highestAlphabet = getHighestAlphabet(alpha)
     const response = 
     {
@@ -61,7 +76,10 @@ app.post('/bfhl', (req, res) => {
         "alphabets": alpha,
         "highest_alphabet": highestAlphabet
         }
-    res.json(response)
+    res.json(response)}
+    catch (error) {
+        res.status(500).json({ is_success: false, error: 'Internal Error.' });
+    }
 })
 app.listen(PORT,() => {
   console.log(`connected at port ${PORT}`);
